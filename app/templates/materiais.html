@@ -28,7 +28,6 @@
                 <select name="categoria" id="categoria" class="form-control form-control-sm">
                     <option value="">Todas as Categorias</option>
                     
-                    {# POPULA O DROPDOWN COM AS CATEGORIAS BUSCADAS NA VIEW #}
                     {% for categoria in todas_categorias %}
                         <option value="{{ categoria.id }}" {% if categoria.id|stringformat:"s" == categoria_id_filter %}selected{% endif %}>
                             {{ categoria.nome }}
@@ -52,7 +51,6 @@
                 <tr>
                     <th scope="col">Nome do Material</th>
                     <th scope="col" class="text-center">Estoque Atual</th>
-                    <th scope="col" class="text-right">Preço Unitário</th>
                     <th scope="col">Categoria</th>
                     <th scope="col">Unidade</th>
                 </tr>
@@ -67,7 +65,6 @@
                         {% endif %}
                     </td>
                     <td class="text-center">{{ material.quantidade_estoque }}</td>
-                    <td class="text-right">R$ {{ material.preco_unitario|floatformat:2 }}</td>
                     <td>{{ material.categoria.nome }}</td>
                     <td>{{ material.unidade_medida.nome }}</td>
                 </tr>

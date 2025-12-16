@@ -109,9 +109,9 @@ class PedidoCompra(models.Model):
     @property
     def get_status_badge_class(self):
         if self.status == 'RECEBIDO':
-            return 'success' # Retorna a classe 'badge-success'
+            return 'success'
         elif self.status == 'CANCELADO':
-            return 'danger' # Retorna a classe 'badge-danger'
+            return 'danger' 
         else:
             return 'warning'
 

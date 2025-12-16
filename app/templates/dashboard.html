@@ -6,9 +6,7 @@
 
     <h2 class="mb-4 text-primary">Painel de Indicadores</h2>
     <p class="lead text-muted">Visão geral e status crítico do estoque e projetos.</p>
-
     <div class="row">
-        {# CARD 1: VALOR TOTAL DO ESTOQUE #}
         <div class="col-md-4 mb-4">
             <div class="card shadow border-left-primary h-100 py-2">
                 <div class="card-body">
@@ -29,7 +27,6 @@
             </div>
         </div>
 
-        {# CARD 2: PROJETOS EM EXECUÇÃO #}
         <div class="col-md-4 mb-4">
             <div class="card shadow border-left-warning h-100 py-2">
                 <div class="card-body">
@@ -50,7 +47,6 @@
             </div>
         </div>
 
-        {# CARD 3: ITENS COM ESTOQUE BAIXO #}
         <div class="col-md-4 mb-4">
             <div class="card shadow border-left-danger h-100 py-2">
                 <div class="card-body">
@@ -73,11 +69,10 @@
     </div>
     
     <div class="row mt-4">
-        {# PAINEL 1: ITENS CRÍTICOS #}
         <div class="col-lg-6">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-danger">⚠️ Itens Críticos (Estoque < 5)</h6>
+                    <h6 class="m-0 font-weight-bold text-danger">⚠️ Itens Críticos (Estoque < 3)</h6>
                 </div>
                 <div class="card-body">
                     {% if itens_criticos %}
@@ -99,7 +94,6 @@
             </div>
         </div>
 
-        {# PAINEL 2: ÚLTIMAS MOVIMENTAÇÕES #}
         <div class="col-lg-6">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
@@ -112,7 +106,6 @@
                             <span class="text-muted small">{{ mov.data_movimentacao|date:"d/m H:i" }}</span> - 
                             **{{ mov.material.nome }}**
                             
-                            {# CORREÇÃO: Usando 'mov.tipo' #}
                             {% if mov.tipo == 'ENTRADA' %} 
                                 <span class="badge badge-success ml-2">+{{ mov.quantidade }}</span>
                             {% else %}

@@ -73,7 +73,6 @@
                             Ver Materiais
                         </a>
                         
-                        {# NOVO BOTÃO DE CONCLUSÃO: Aparece apenas se o status for EM EXECUÇÃO #}
                         {% if servico.status == 'EXECUCAO' %}
                             <form method="post" action="{% url 'concluir_servico' servico_id=servico.id %}" style="display:inline-block; margin-left: 5px;">
                                 {% csrf_token %}

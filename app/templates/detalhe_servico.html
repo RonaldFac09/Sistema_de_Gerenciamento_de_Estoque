@@ -55,16 +55,11 @@
         </div>
     
     {% else %}
-        {# 3. MENSAGEM DE ESTOQUE SUFICIENTE (Estado Planejado) #}
         <div class="alert alert-success mt-1 shadow-sm">
             <i class="fas fa-check-circle"></i> ESTOQUE SUFICIENTE! Todos os materiais necessários para este projeto estão disponíveis no estoque.
         </div>
     {% endif %}
 
-    {# ---------------------------------------------------------------- #}
-    {# TABELA DE ITENS NECESSÁRIOS (MANTIDA SEM ALTERAÇÃO) #}
-    {# ---------------------------------------------------------------- #}
-    
     <h4 class="mt-2 text-secondary">Lista Completa de Materiais Requeridos</h4>
     <div class="table-responsive">
         <table class="table table-striped table-bordered shadow-sm">
@@ -91,14 +86,9 @@
         </table>
     </div>
     
-    {# ---------------------------------------------------------------- #}
-    {# BOTÕES DE AÇÃO (VOLTAR E BAIXAR ESTOQUE) - LÓGICA REVISADA #}
-    {# ---------------------------------------------------------------- #}
-
     <div class="d-flex justify-content-between align-items-center mt-4">
         <a href="{% url 'servicos' %}" class="btn btn-outline-secondary">← Voltar para Projetos</a>
         
-        {# O BOTÃO SÓ APARECE SE NÃO HOUVER FALTANTES E O STATUS NÃO FOR EXECUÇÃO/CONCLUÍDO #}
         {% if not faltantes and servico.status != 'EXECUCAO' and servico.status != 'CONCLUIDO' %}
             <form method="post" action="{% url 'registrar_consumo' servico_id=servico.id %}" style="display:inline;">
                 {% csrf_token %}

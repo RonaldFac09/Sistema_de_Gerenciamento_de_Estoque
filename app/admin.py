@@ -4,10 +4,6 @@ from .models import (
     ItemServicoNecessario, Servico, ItemPedido, PedidoCompra, Fornecedor 
 )
 
-# ----------------------------------------------------
-# 1. ADMINS COM CLASSE E DECORADOR @admin.register
-# ----------------------------------------------------
-
 @admin.register(Material)
 class MaterialAdmin(admin.ModelAdmin):
     list_display = ('nome', 'quantidade_estoque', 'preco_unitario', 'categoria', 'unidade_medida')
@@ -43,15 +39,9 @@ class PedidoCompraAdmin(admin.ModelAdmin):
     search_fields = ('fornecedor__nome', 'id')
 
 
-# ----------------------------------------------------
-# 3. REGISTROS SIMPLES (Garantir que sejam chamados por último)
-# ----------------------------------------------------
 admin.site.register(Categoria)
 admin.site.register(UnidadeMedida)
 admin.site.register(MovimentacaoEstoque)
 admin.site.register(RegistroConsumo)
-
-# NOTE: Fornecedor foi registrado aqui, mas vou movê-lo para o topo para evitar o conflito, 
-# se for a causa do erro com o PedidoCompra.
-admin.site.register(Fornecedor) # << Mantenha este registro
+admin.site.register(Fornecedor) 
 

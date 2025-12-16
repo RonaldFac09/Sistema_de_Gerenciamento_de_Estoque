@@ -11,7 +11,7 @@ from django.db.models.functions import ExtractMonth, ExtractYear
 from .models import (
     Material, Categoria, UnidadeMedida, Servico, PedidoCompra, 
     ItemServicoNecessario, ItemPedido, MovimentacaoEstoque, RegistroConsumo,
-    Fornecedor # <<< ADICIONE ESTA LINHA AQUI, ASSUMINDO QUE VOCÊ JÁ A CRIOU NO models.py
+    Fornecedor
 )
 class IndexView(View):
     def get(self, request, *args, **kwargs):
@@ -21,76 +21,58 @@ class IndexView(View):
         pass
 
 class MateriaisView(View):
-    """Exibe o estoque atual de materiais com opções de filtro e busca."""
     def get(self, request, *args, **kwargs):
-        # 1. Obter parâmetros de busca e filtro
         search_query = request.GET.get('search', '')
-        categoria_id_filter = request.GET.get('categoria', '') # Captura o ID da categoria
-        
-        # 2. Iniciar a queryset e ordenar (Ex: por nome)
+        categoria_id_filter = request.GET.get('categoria', '') 
         materiais = Material.objects.all().order_by('nome') 
-        
-        # 3. Aplicar busca por nome (se houver)
+
         if search_query:
-            # Busca pelo nome do material (case-insensitive contains)
             materiais = materiais.filter(nome__icontains=search_query) 
-        
-        # 4. Aplicar filtro por Categoria (se houver)
+
         if categoria_id_filter:
-            # Filtra onde a FK do material corresponde ao ID da categoria
             materiais = materiais.filter(categoria_id=categoria_id_filter)
         
-        # 5. Recuperar todas as categorias para popular o dropdown do filtro
         todas_categorias = Categoria.objects.all().order_by('nome')
         
-        # 6. Enviar dados para o template
         context = {
             'materiais': materiais,
-            'todas_categorias': todas_categorias, # Lista de categorias para o dropdown
+            'todas_categorias': todas_categorias, 
             'search_query': search_query, 
-            'categoria_id_filter': categoria_id_filter, # Passa o filtro atual
+            'categoria_id_filter': categoria_id_filter, 
         }
         return render(request, 'materiais.html', context)
 
 
 class CategoriasView(View):
-    """Exibe todas as Categorias."""
     def get(self, request, *args, **kwargs):
         categorias = Categoria.objects.all()
         return render(request, 'categorias.html', {'categorias': categorias})
 
 
 class UnidadesMedidaView(View):
-    """Exibe todas as Unidades de Medida."""
     def get(self, request, *args, **kwargs):
         unidades = UnidadeMedida.objects.all()
         return render(request, 'unidades.html', {'unidades': unidades})
 
 
 class ServicosView(View):
-    """Exibe todos os Serviços/Projetos, com filtros e busca."""
     def get(self, request, *args, **kwargs):
-        # 1. Obter parâmetros de busca e filtro
         search_query = request.GET.get('search', '')
         status_filter = request.GET.get('status', '')
         
-        # 2. Iniciar a queryset com ordenação (do mais novo para o mais velho)
         servicos = Servico.objects.all().order_by('-data_criacao') 
         
-        # 3. Aplicar busca por nome (se houver)
         if search_query:
-            # Busca pelo nome do serviço (case-insensitive contains)
             servicos = servicos.filter(nome__icontains=search_query) 
         
-        # 4. Aplicar filtro por status (se houver)
         if status_filter:
             servicos = servicos.filter(status=status_filter)
         
-        # 5. Enviar dados para o template, incluindo os filtros atuais
+
         context = {
             'servicos': servicos,
-            'search_query': search_query, # Passa a busca de volta para manter o campo preenchido
-            'status_filter': status_filter, # Passa o filtro de volta
+            'search_query': search_query, 
+            'status_filter': status_filter, 
         }
         return render(request, 'servicos.html', context)
 
@@ -98,18 +80,14 @@ class ServicosView(View):
 class PedidosView(View):
     """Controla e exibe a lista de Pedidos de Compra com filtros."""
     def get(self, request, *args, **kwargs):
-        # 1. Obter parâmetros de busca e filtro
         fornecedor_id_filter = request.GET.get('fornecedor', '')
-        month_filter = request.GET.get('mes', '') # Formato esperado: 'MM-YYYY'
+        month_filter = request.GET.get('mes', '')
         
-        # 2. Iniciar a queryset e ordenar (do mais novo para o mais velho, usando -data_criacao)
         pedidos = PedidoCompra.objects.all().order_by('-data_criacao') 
         
-        # 3. Aplicar filtro por Fornecedor (se houver)
         if fornecedor_id_filter:
             pedidos = pedidos.filter(fornecedor_id=fornecedor_id_filter)
         
-        # 4. Aplicar filtro por Mês/Ano (se houver, esperando 'MM-YYYY')
         if month_filter and '-' in month_filter:
             try:
                 mes, ano = map(int, month_filter.split('-'))
@@ -118,46 +96,40 @@ class PedidosView(View):
                     data_criacao__year=ano
                 )
             except ValueError:
-                # Ignora o filtro se o formato for inválido
                 pass 
         
-        # 5. Recuperar dados para os dropdowns
         todas_fornecedores = Fornecedor.objects.all().order_by('nome')
 
-        # Geração da lista de meses/anos únicos presentes nos pedidos (para o dropdown)
         meses_com_dados = PedidoCompra.objects.annotate(
             mes_num=ExtractMonth('data_criacao'),
             ano_num=ExtractYear('data_criacao')
         ).values('mes_num', 'ano_num').distinct().order_by('ano_num', 'mes_num')
         
-        # Mapeamento de números para nomes de meses (em Português)
         nomes_meses = {
             1: 'Janeiro', 2: 'Fevereiro', 3: 'Março', 4: 'Abril', 
             5: 'Maio', 6: 'Junho', 7: 'Julho', 8: 'Agosto', 
             9: 'Setembro', 10: 'Outubro', 11: 'Novembro', 12: 'Dezembro'
         }
         
-        # Prepara a lista de meses para o template no formato MM/AAAA
         lista_meses_dropdown = []
         for item in meses_com_dados:
             mes_num = item['mes_num']
             ano_num = item['ano_num']
             
-            valor_get = f"{mes_num}-{ano_num}" # Valor a ser enviado: 12-2025
-            texto_exibido = f"{nomes_meses.get(mes_num)} / {ano_num}" # Texto a ser exibido: Dezembro / 2025
+            valor_get = f"{mes_num}-{ano_num}" 
+            texto_exibido = f"{nomes_meses.get(mes_num)} / {ano_num}" 
             
             lista_meses_dropdown.append({
                 'value': valor_get,
                 'name': texto_exibido
             })
 
-        # 6. Enviar dados para o template
         context = {
             'pedidos': pedidos,
             'todas_fornecedores': todas_fornecedores, 
             'lista_meses_dropdown': lista_meses_dropdown,
             'fornecedor_id_filter': fornecedor_id_filter,
-            'month_filter': month_filter, # Mantém o mês/ano selecionado
+            'month_filter': month_filter, 
         }
         return render(request, 'pedidos.html', context)
 

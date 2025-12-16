@@ -6,7 +6,6 @@
 
     <div class="d-flex justify-content-between align-items-center mb-2">
         <h2 class="text-primary">Detalhes do Pedido #{{ pedido.id }}</h2>
-        {# Mantém o botão voltar no topo #}
         <a href="{% url 'pedidos' %}" class="btn btn-secondary">← Voltar aos Pedidos</a>
     </div>
 
@@ -27,16 +26,13 @@
         </div>
     </div>
     
-    {# ---------------------------------------------------------------- #}
-    {# MENSAGENS DE STATUS FINALIZADO #}
-    {# ---------------------------------------------------------------- #}
     {% if pedido.status == 'RECEBIDO' %}
         <div class="alert alert-success mt-3">
-            <i class="fas fa-check-circle"></i> **Pedido Recebido!** O estoque dos materiais foi atualizado.
+            <i class="fas fa-check-circle"></i> Pedido Recebido! O estoque dos materiais foi atualizado.
         </div>
     {% elif pedido.status == 'CANCELADO' %}
         <div class="alert alert-danger mt-3">
-            <i class="fas fa-times-circle"></i> **Pedido Cancelado!** Nenhuma ação foi registrada no estoque.
+            <i class="fas fa-times-circle"></i> Pedido Cancelado! Nenhuma ação foi registrada no estoque.
         </div>
     {% endif %}
     <h4 class="mt-3 mb-2 text-primary">Itens Comprados</h4>
@@ -68,14 +64,9 @@
         </table>
     </div>
 
-    {# ---------------------------------------------------------------- #}
-    {# BOTÕES DE AÇÃO: RECEBER E CANCELAR (SÓ APARECEM SE PENDENTE) #}
-    {# ---------------------------------------------------------------- #}
-    
     {% if pedido.status == 'PENDENTE' %}
     <div class="d-flex justify-content-end mt-2">
         
-        {# BOTÃO CANCELAR PEDIDO #}
         <form method="post" action="{% url 'cancelar_pedido' pedido_id=pedido.id %}" style="display:inline;" class="mr-2">
             {% csrf_token %}
             
@@ -85,7 +76,6 @@
             </button>
         </form>
         
-        {# BOTÃO RECEBER PEDIDO #}
         <form method="post" action="{% url 'receber_pedido' pedido_id=pedido.id %}" style="display:inline;">
             {% csrf_token %}
             
