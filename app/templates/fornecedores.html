@@ -1,0 +1,40 @@
+{% extends 'base.html' %} 
+
+{% block title %}Lista de Fornecedores{% endblock %}
+
+{% block content %}
+
+    <h2 class="mb-4 text-primary">Fornecedores Cadastrados</h2>
+    <p class="lead text-muted">Controle e visualize os fornecedores utilizados para compra de materiais.</p>
+    
+    <a href="/admin/app/fornecedor/add/" class="btn btn-success mb-4">
+        + Adicionar Novo Fornecedor
+    </a>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-hover shadow-sm">
+            <thead class="bg-primary text-white">
+                <tr>
+                    <th scope="col">Nome</th>
+                    <th scope="col">Contato</th>
+                    <th scope="col">Telefone</th>
+                </tr>
+            </thead>
+            <tbody>
+                {# A variável 'fornecedores' vem da FornecedoresView #}
+                {% for fornecedor in fornecedores %}
+                <tr>
+                    <td>{{ fornecedor.nome }}</td>
+                    <td>{{ fornecedor.contato }}</td>
+                    <td>{{ fornecedor.telefone }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center text-secondary">Nenhum fornecedor cadastrado no momento.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}

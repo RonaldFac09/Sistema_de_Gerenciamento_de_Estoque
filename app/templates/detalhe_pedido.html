@@ -1,0 +1,101 @@
+{% extends 'base.html' %} 
+
+{% block title %}Detalhes do Pedido #{{ pedido.id }}{% endblock %}
+
+{% block content %}
+
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h2 class="text-primary">Detalhes do Pedido #{{ pedido.id }}</h2>
+        {# Mantém o botão voltar no topo #}
+        <a href="{% url 'pedidos' %}" class="btn btn-secondary">← Voltar aos Pedidos</a>
+    </div>
+
+    <div class="card shadow mb-3">
+        <div class="card-header bg-info text-white">
+            Informações Principais
+        </div>
+        <div class="card-header">
+            <p><strong>Data do Pedido:</strong> {{ pedido.data_criacao|date:"d/m/Y" }}</p>
+            <p><strong>Fornecedor:</strong> {{ pedido.fornecedor }}</p>
+            <p>
+                <strong>Status:</strong> 
+                <span class="badge 
+                    {% if pedido.status == 'RECEBIDO' %}badge-success{% elif pedido.status == 'CANCELADO' %}badge-danger{% else %}badge-warning{% endif %}">
+                    {{ pedido.status }}
+                </span>
+            </p>
+        </div>
+    </div>
+    
+    {# ---------------------------------------------------------------- #}
+    {# MENSAGENS DE STATUS FINALIZADO #}
+    {# ---------------------------------------------------------------- #}
+    {% if pedido.status == 'RECEBIDO' %}
+        <div class="alert alert-success mt-3">
+            <i class="fas fa-check-circle"></i> **Pedido Recebido!** O estoque dos materiais foi atualizado.
+        </div>
+    {% elif pedido.status == 'CANCELADO' %}
+        <div class="alert alert-danger mt-3">
+            <i class="fas fa-times-circle"></i> **Pedido Cancelado!** Nenhuma ação foi registrada no estoque.
+        </div>
+    {% endif %}
+    <h4 class="mt-3 mb-2 text-primary">Itens Comprados</h4>
+    
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead class="thead-light">
+                <tr>
+                    <th>Material</th>
+                    <th class="text-center">Quantidade Pedida</th>
+                    <th class="text-right">Preço Unitário</th>
+                    <th class="text-right">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in itens_do_pedido %}
+                <tr>
+                    <td>{{ item.material.nome }}</td>
+                    <td class="text-center">{{ item.quantidade_pedida }} {{ item.material.unidade_medida.nome }}</td>
+                    <td class="text-right">R$ {{ item.preco_unitario|floatformat:2 }}</td> 
+                    <td class="text-right">R$ {{ item.total_item|floatformat:2 }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted">Nenhum material listado neste pedido.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {# ---------------------------------------------------------------- #}
+    {# BOTÕES DE AÇÃO: RECEBER E CANCELAR (SÓ APARECEM SE PENDENTE) #}
+    {# ---------------------------------------------------------------- #}
+    
+    {% if pedido.status == 'PENDENTE' %}
+    <div class="d-flex justify-content-end mt-2">
+        
+        {# BOTÃO CANCELAR PEDIDO #}
+        <form method="post" action="{% url 'cancelar_pedido' pedido_id=pedido.id %}" style="display:inline;" class="mr-2">
+            {% csrf_token %}
+            
+            <button type="submit" class="btn btn-outline-danger btn-md" 
+                    onclick="return confirm('Tem certeza que deseja CANCELAR este pedido? Esta ação não pode ser desfeita.');">
+                <i class="fas fa-times"></i> Cancelar Pedido
+            </button>
+        </form>
+        
+        {# BOTÃO RECEBER PEDIDO #}
+        <form method="post" action="{% url 'receber_pedido' pedido_id=pedido.id %}" style="display:inline;">
+            {% csrf_token %}
+            
+            <button type="submit" class="btn btn-success btn-md" 
+                    onclick="return confirm('ATENÇÃO: Ao receber o pedido, os materiais serão adicionados ao estoque. Confirma o recebimento?');">
+                <i class="fas fa-truck-loading"></i> Receber Pedido
+            </button>
+        </form>
+        
+    </div>
+    {% endif %}
+
+{% endblock %}

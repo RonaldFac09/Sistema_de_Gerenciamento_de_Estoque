@@ -1,0 +1,114 @@
+{% extends 'base.html' %} 
+
+{% block title %}Detalhe do Serviço: {{ servico.nome }}{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="mb-2 text-primary">Detalhe do Projeto: {{ servico.nome }}</h2>
+            <p class="lead text-muted">Status: 
+                {% if servico.status == 'CONCLUIDO' %}
+                    <span class="badge badge-success">Concluído</span>
+                {% elif servico.status == 'EXECUCAO' %}
+                    <span class="badge badge-warning">Em Execução</span>
+                {% else %}
+                    <span class="badge badge-secondary">Planejado</span>
+                {% endif %}
+            </p>
+            
+            <p><strong>Descrição:</strong> {{ servico.descricao|default:"Nenhuma descrição fornecida." }}</p>
+            <hr>
+        </div>
+    </div>
+    {% if servico.status == 'EXECUCAO' or servico.status == 'CONCLUIDO' %}
+        <div class="alert alert-info shadow-sm mt-1">
+            <i class="fas fa-box-open"></i> Materiais Retirados! O consumo de estoque para este serviço já foi registrado.
+        </div>
+    {% elif faltantes %}
+        <div class="alert alert-danger shadow-sm mt-2">
+            <h4 class="alert-heading">⚠️ ATENÇÃO: Materiais em Falta!</h4>
+            <p>Os seguintes itens necessários para este projeto estão abaixo do estoque mínimo. É necessário emitir um pedido de compra.</p>
+            
+            <table class="table table-bordered table-sm mt-3 bg-white">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Material</th>
+                        <th class="text-center">Necessário</th>
+                        <th class="text-center">Em Estoque</th>
+                        <th class="text-center">Falta</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in faltantes %}
+                    <tr>
+                        <td>{{ item.material }}</td>
+                        <td class="text-center">{{ item.necessario }}</td>
+                        <td class="text-center">{{ item.estoque }}</td>
+                        <td class="text-center font-weight-bold text-danger">{{ item.falta }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <a href="{% url 'pedidos' %}" class="btn btn-danger btn-sm float-right">Ir para Pedidos de Compra</a>
+            <div class="clearfix"></div>
+        </div>
+    
+    {% else %}
+        {# 3. MENSAGEM DE ESTOQUE SUFICIENTE (Estado Planejado) #}
+        <div class="alert alert-success mt-1 shadow-sm">
+            <i class="fas fa-check-circle"></i> ESTOQUE SUFICIENTE! Todos os materiais necessários para este projeto estão disponíveis no estoque.
+        </div>
+    {% endif %}
+
+    {# ---------------------------------------------------------------- #}
+    {# TABELA DE ITENS NECESSÁRIOS (MANTIDA SEM ALTERAÇÃO) #}
+    {# ---------------------------------------------------------------- #}
+    
+    <h4 class="mt-2 text-secondary">Lista Completa de Materiais Requeridos</h4>
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered shadow-sm">
+            <thead class="bg-info text-white">
+                <tr>
+                    <th scope="col">Material</th>
+                    <th scope="col" class="text-center">Quantidade Necessária</th>
+                    <th scope="col" class="text-right">Preço Unitário</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in itens_necessarios %}
+                <tr>
+                    <td>{{ item.material.nome }}</td>
+                    <td class="text-center">{{ item.quantidade_necessaria }} {{ item.material.unidade_medida.nome }}</td>
+                    <td class="text-right">R$ {{ item.material.preco_unitario|floatformat:2 }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3" class="text-center text-secondary">Nenhum material associado a este projeto.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    {# ---------------------------------------------------------------- #}
+    {# BOTÕES DE AÇÃO (VOLTAR E BAIXAR ESTOQUE) - LÓGICA REVISADA #}
+    {# ---------------------------------------------------------------- #}
+
+    <div class="d-flex justify-content-between align-items-center mt-4">
+        <a href="{% url 'servicos' %}" class="btn btn-outline-secondary">← Voltar para Projetos</a>
+        
+        {# O BOTÃO SÓ APARECE SE NÃO HOUVER FALTANTES E O STATUS NÃO FOR EXECUÇÃO/CONCLUÍDO #}
+        {% if not faltantes and servico.status != 'EXECUCAO' and servico.status != 'CONCLUIDO' %}
+            <form method="post" action="{% url 'registrar_consumo' servico_id=servico.id %}" style="display:inline;">
+                {% csrf_token %}
+                
+                <button type="submit" class="btn btn-danger btn-md" 
+                        onclick="return confirm('ATENÇÃO: Este passo consumirá os materiais do estoque e iniciará o projeto (status: Em Execução). Deseja continuar?');">
+                    Baixar Estoque 
+                </button>
+            </form>
+        {% endif %}
+    </div>
+
+{% endblock %}

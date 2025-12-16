@@ -1,0 +1,135 @@
+{% extends 'base.html' %} 
+
+{% block title %}Dashboard | SGE Marcenaria{% endblock %}
+
+{% block content %}
+
+    <h2 class="mb-4 text-primary">Painel de Indicadores</h2>
+    <p class="lead text-muted">Visão geral e status crítico do estoque e projetos.</p>
+
+    <div class="row">
+        {# CARD 1: VALOR TOTAL DO ESTOQUE #}
+        <div class="col-md-4 mb-4">
+            <div class="card shadow border-left-primary h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Valor Total do Estoque
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                R$ {{ valor_total_estoque|floatformat:2|default:"0.00" }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# CARD 2: PROJETOS EM EXECUÇÃO #}
+        <div class="col-md-4 mb-4">
+            <div class="card shadow border-left-warning h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Projetos em Execução
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ projetos_em_execucao }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-hammer fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# CARD 3: ITENS COM ESTOQUE BAIXO #}
+        <div class="col-md-4 mb-4">
+            <div class="card shadow border-left-danger h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Itens com Estoque Baixo
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ total_itens_criticos }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        {# PAINEL 1: ITENS CRÍTICOS #}
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-danger">⚠️ Itens Críticos (Estoque < 5)</h6>
+                </div>
+                <div class="card-body">
+                    {% if itens_criticos %}
+                    <ul class="list-group list-group-flush">
+                        {% for item in itens_criticos %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ item.nome }}
+                            <span class="badge badge-danger badge-pill">{{ item.quantidade_estoque }} {{ item.unidade_medida.nome }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    <a href="{% url 'materiais' %}" class="btn btn-sm btn-outline-danger mt-3">Ver Todos os Materiais</a>
+                    {% else %}
+                    <div class="alert alert-success">
+                        Nenhum item está com estoque abaixo do nível crítico.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {# PAINEL 2: ÚLTIMAS MOVIMENTAÇÕES #}
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">🔄 Últimas 5 Movimentações</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        {% for mov in ultimas_movimentacoes %}
+                        <li class="list-group-item">
+                            <span class="text-muted small">{{ mov.data_movimentacao|date:"d/m H:i" }}</span> - 
+                            **{{ mov.material.nome }}**
+                            
+                            {# CORREÇÃO: Usando 'mov.tipo' #}
+                            {% if mov.tipo == 'ENTRADA' %} 
+                                <span class="badge badge-success ml-2">+{{ mov.quantidade }}</span>
+                            {% else %}
+                                <span class="badge badge-danger ml-2">-{{ mov.quantidade }}</span>
+                            {% endif %}
+                            
+                            {# CORREÇÃO: Usando 'mov.referencia' #}
+                            <p class="mb-0 small text-gray-600">Referência: {{ mov.referencia }}</p> 
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item text-secondary">Nenhuma movimentação recente.</li>
+                        {% endfor %}
+                    </ul>
+                    <a href="{% url 'historico_movimentacoes' %}" class="btn btn-sm btn-outline-primary mt-3">Ver Histórico Completo</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

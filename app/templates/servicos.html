@@ -1,0 +1,98 @@
+{% extends 'base.html' %} 
+{% load static %}
+
+{% block title %}Projetos e Serviços{% endblock %}
+
+{% block content %}
+
+    <h2 class="mb-4 text-primary">Projetos e Serviços da Marcenaria</h2>
+    <p class="lead text-muted">Acompanhe o status e os materiais de todos os projetos em andamento.</p>
+    
+    <a href="/admin/app/servico/add/" class="btn btn-success mb-4">
+        + Adicionar Novo Serviço/Projeto
+    </a>
+    <div class="mb-4">
+        <form method="GET" action="{% url 'servicos' %}" class="form-row align-items-end">
+            
+            <div class="col-md-4 col-sm-12 mb-2">
+                <label for="search" class="sr-only">Buscar por Nome do Projeto:</label>
+                <input type="text" 
+                       name="search" 
+                       id="search" 
+                       class="form-control form-control-sm" 
+                       placeholder="Buscar por Nome do Projeto"
+                       value="{{ search_query }}">
+            </div>
+            
+            <div class="col-md-3 col-sm-12 mb-2">
+                <label for="status" class="sr-only">Filtrar por Status:</label>
+                <select name="status" id="status" class="form-control form-control-sm">
+                    <option value="">Todos os Status</option>
+                    <option value="PLANEJADO" {% if status_filter == 'PLANEJADO' %}selected{% endif %}>Planejado</option>
+                    <option value="EXECUCAO" {% if status_filter == 'EXECUCAO' %}selected{% endif %}>Em Execução</option>
+                    <option value="CONCLUIDO" {% if status_filter == 'CONCLUIDO' %}selected{% endif %}>Concluído</option>
+                </select>
+            </div>
+            
+            <div class="col-md-2 col-sm-6 mb-2">
+                <button type="submit" class="btn btn-primary btn-sm btn-block">Aplicar</button>
+            </div>
+            <div class="col-md-2 col-sm-6 mb-2">
+                <a href="{% url 'servicos' %}" class="btn btn-outline-secondary btn-sm btn-block">Limpar</a>
+            </div>
+        </form>
+    </div>
+
+
+    <div class="table-responsive">
+        <table class="table table-striped table-hover shadow-sm">
+            <thead class="bg-primary text-white">
+                <tr>
+                    <th scope="col">Nome do Serviço/Projeto</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Descrição</th>
+                    <th scope="col" class="text-center">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for servico in servicos %}
+                <tr>
+                    <td>{{ servico.nome }}</td>
+                    <td>
+                        {% if servico.status == 'CONCLUIDO' %}
+                            <span class="badge badge-success">Concluído</span>
+                        {% elif servico.status == 'EXECUCAO' %}
+                            <span class="badge badge-warning">Em Execução</span>
+                        {% else %}
+                            <span class="badge badge-secondary">Planejado</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ servico.descricao|default:"N/A" }}</td>
+                    <td class="text-center">
+                        <a href="{% url 'detalhe_servico' id=servico.id %}" class="btn btn-sm btn-outline-primary">
+                            Ver Materiais
+                        </a>
+                        
+                        {# NOVO BOTÃO DE CONCLUSÃO: Aparece apenas se o status for EM EXECUÇÃO #}
+                        {% if servico.status == 'EXECUCAO' %}
+                            <form method="post" action="{% url 'concluir_servico' servico_id=servico.id %}" style="display:inline-block; margin-left: 5px;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-success"
+                                        onclick="return confirm('Deseja realmente marcar o projeto {{ servico.nome }} como CONCLUÍDO? Esta ação não pode ser desfeita.');">
+                                    CONCLUÍDO
+                                </button>
+                            </form>
+                        {% endif %}
+                        
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center text-danger">Nenhum serviço ou projeto cadastrado no momento.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}

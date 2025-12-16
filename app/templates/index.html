@@ -1,0 +1,47 @@
+{% extends 'base.html' %} 
+
+{% block title %}Página Inicial - SGE{% endblock %}
+
+{% block content %}
+
+    <div class="jumbotron text-center bg-light border-0 shadow-sm p-5">
+        <h1 class="display-4 font-weight-bold text-primary mb-3">Sistema de Gerenciamento de Estoque</h1>
+        
+        <p class="lead mt-4 text-muted">
+            Bem-vindo(a) ao Sistema de Gestão de Estoque e Projetos (SGE). Controle sua matéria-prima do pedido de compra ao consumo final
+        </p>
+        
+        <hr class="my-4">
+        
+        <div class="row text-left mt-5">
+            <div class="col-md-4">
+                <div class="card shadow-sm border-light h-100">
+                    <div class="card-body">
+                        <h5 class="card-title text-info"><i class="fas fa-boxes"></i> Materiais</h5>
+                        <p class="card-text">Visualize o inventário atual, preços e unidades de consumo. Confira o que está em falta.</p>
+                        <a href="{% url 'materiais' %}" class="btn btn-block btn-info mt-2">Ver Estoque</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-sm border-light h-100">
+                    <div class="card-body">
+                        <h5 class="card-title text-primary"><i class="fas fa-hammer"></i> Serviços</h5>
+                        <p class="card-text">Gerencie projetos, acompanhe o status e consulte a lista de materiais necessários.</p>
+                        <a href="{% url 'servicos' %}" class="btn btn-block btn-primary mt-2">Ver Projetos</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-sm border-light h-100">
+                    <div class="card-body">
+                        <h5 class="card-title text-secondary"><i class="fas fa-user-shield"></i> Administração</h5>
+                        <p class="card-text">Acesso direto ao painel de administração para cadastrar, editar e gerenciar todos os dados.</p>
+                        <a href="/admin/" class="btn btn-block btn-secondary mt-2">Acessar Admin</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+{% endblock %}
